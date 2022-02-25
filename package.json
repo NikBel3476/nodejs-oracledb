@@ -2,10 +2,18 @@
   "name": "oracledb",
   "version": "1.0.0",
   "description": "",
-  "main": "src/app.ts",
+  "main": "src/app.js",
   "scripts": {
-    "start": "ts-node src/app.ts",
+    "start": "node src/app.js",
     "dev": "nodemon"
+  },
+  "nodemonConfig": {
+    "watch": [
+      "src"
+    ],
+    "ext": ".js",
+    "ignore": [],
+    "exec": "node src/app.js"
   },
   "keywords": [],
   "author": "",
@@ -16,14 +24,9 @@
     "dotenv": "^16.0.0",
     "express": "^4.17.2",
     "oracledb": "^5.3.0",
-    "ts-node": "^10.5.0",
-    "typescript": "^4.5.5"
+    "puppeteer": "^13.4.0"
   },
   "devDependencies": {
-    "@types/cors": "^2.8.12",
-    "@types/express": "^4.17.13",
-    "@types/node": "^17.0.17",
-    "@types/oracledb": "^5.2.2",
     "nodemon": "^2.0.15"
   }
 }
