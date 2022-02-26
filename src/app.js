@@ -12,9 +12,9 @@ app.use(cors());
 
 app.get('/', (req, res) => res.send('<h1>nodejs oracledb</h1>'));
 
-getDataFromDB().then(data => {
+/*getDataFromDB().then(data => {
     console.log(data);
-});
+});*/
 
 getInfoFromPage();
 
