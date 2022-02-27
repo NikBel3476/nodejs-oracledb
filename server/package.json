@@ -5,6 +5,7 @@
   "main": "src/app.js",
   "scripts": {
     "start": "node src/app.js",
+    "prestart": "npx prettier --write",
     "dev": "nodemon"
   },
   "nodemonConfig": {
@@ -13,7 +14,7 @@
     ],
     "ext": ".js",
     "ignore": [],
-    "exec": "node src/app.js"
+    "exec": "npm run start"
   },
   "keywords": [],
   "author": "",
@@ -27,6 +28,7 @@
     "puppeteer": "^13.4.0"
   },
   "devDependencies": {
-    "nodemon": "^2.0.15"
+    "nodemon": "^2.0.15",
+    "prettier": "^2.5.1"
   }
 }
