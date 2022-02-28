@@ -7,3 +7,5 @@
 2) Launch the application in developer mode
 
     `npm run start`
+
+Application will start at `http://localhost:3000`, you can open it in browser
