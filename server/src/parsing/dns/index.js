@@ -1,5 +1,3 @@
-const fs = require("fs");
-const path = require("path");
 const puppeteer = require("puppeteer");
 
 const link = `${process.env.API_URL}/17a899cd16404e77/processory/`;

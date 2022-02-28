@@ -12,8 +12,8 @@ app.use(cors());
 
 app.get("/", (req, res) => res.send("<h1>nodejs oracledb</h1>"));
 
-getDataFromDB().then(data => {
-    console.log(data);
+getDataFromDB().then((data) => {
+  console.log(data);
 });
 
 getInfoFromPage();

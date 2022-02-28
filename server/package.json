@@ -5,7 +5,7 @@
   "main": "src/app.js",
   "scripts": {
     "start": "node src/app.js",
-    "prestart": "npx prettier --write",
+    "prestart": "npx prettier --write .",
     "dev": "nodemon"
   },
   "nodemonConfig": {
