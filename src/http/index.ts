@@ -5,5 +5,6 @@ export const $weatherApi = axios.create({
     "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/",
   params: {
     key: process.env.API_KEY,
+    contentType: "json",
   },
 });
