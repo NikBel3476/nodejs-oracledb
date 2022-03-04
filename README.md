@@ -1,5 +1,23 @@
-### Test app which uses oracledb
+### Server side of app which uses oracledb
 
-Repository includes server and client parts which located in /server and /client folders respectively.
+**[Client side](https://github.com/NikBel3476/oracledb-client)**
 
-See README.md in both folders to run the application
+##### To run server
+
+1. Install dependencies if you are running the application at the first time
+    ```npm
+    npm install
+    ```
+2. Launch the server
+    ```npm
+    npm run start
+    ```
+    or run it in developer mode
+
+    ```npm
+    npm run dev
+    ```
+
+Server will start at `http://localhost:5000`, you can open it in browser
+
+**[ER diagram](https://app.diagrams.net/#G1P1h4_hd9_Tavcdgc0EOPe07LCMm7oGI1)**

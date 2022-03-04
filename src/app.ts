@@ -8,8 +8,8 @@ const PORT = process.env.PORT || 5000;
 
 const app = express();
 
-app.use('/api', router);
-app.get('/', (req, res) => res.send("<h1>nodejs oracledb</h1>"));
+app.use("/api", router);
+app.get("/", (req, res) => res.send("<h1>nodejs oracledb</h1>"));
 
 /*getDataFromDB().then((data: any) => {
   console.log(data);
