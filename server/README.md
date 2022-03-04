@@ -17,3 +17,5 @@
     ```
 
 Server will start at `http://localhost:5000`, you can open it in browser
+
+ER diagram: https://app.diagrams.net/#G1P1h4_hd9_Tavcdgc0EOPe07LCMm7oGI1

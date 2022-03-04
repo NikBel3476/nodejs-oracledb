@@ -1,7 +1,7 @@
-const oracledb = require("oracledb");
-const dbconfig = require("./dbconfig");
+import oracledb from "oracledb";
+import dbconfig from "./dbconfig";
 
-async function getDataFromDB() {
+export const getDataFromDB = async () => {
   let connection;
 
   try {
@@ -21,6 +21,4 @@ async function getDataFromDB() {
       }
     }
   }
-}
-
-module.exports = getDataFromDB;
+};
