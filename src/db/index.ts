@@ -1,6 +1,6 @@
 import oracledb, { BindParameters, ExecuteOptions, Result } from "oracledb";
 import dbconfig from "./dbconfig";
-import { City } from "./dbtypes";
+import { City } from "../types/dbtypes";
 
 class Database {
   private async execute<T>(
@@ -27,9 +27,9 @@ class Database {
     }
   }
 
-  async getCityByName(cityName: string): Promise<City | undefined> {
+  async getCityByName(cityName: string) {
     const data = await this.execute<City>(
-      "select ID, NAME from CITY where NAME = :cityName",
+      `select ID, NAME from CITY where NAME = :cityName`,
       [cityName],
       {
         outFormat: oracledb.OUT_FORMAT_OBJECT,
@@ -37,6 +37,36 @@ class Database {
       }
     );
     if (data?.rows) return data.rows[0];
+    return null;
+  }
+
+  async getAllCities() {
+    const data = await this.execute<City>(`select ID, NAME from CITY`, [], {
+      outFormat: oracledb.OUT_FORMAT_OBJECT,
+    });
+    return data?.rows || null;
+  }
+
+  async addCity(name: string) {
+    const data = await this.execute<City>(
+      `insert into CITY (NAME) values (:cityName) returning ID, NAME into :id, :name`,
+      {
+        cityName: name,
+        rid: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT },
+        rname: { type: oracledb.DB_TYPE_VARCHAR, dir: oracledb.BIND_OUT },
+      },
+      {
+        autoCommit: true,
+      }
+    );
+    if (data?.outBinds) {
+      const city: City = {
+        id: data?.outBinds.id,
+        name: data?.outBinds.name,
+      };
+      return city;
+    }
+    return null;
   }
 }
 
