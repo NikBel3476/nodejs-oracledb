@@ -12,12 +12,14 @@ class CityController {
       return res.json(resFromDB);
     }
 
-    const dataFromApi = await $weatherApi.get(`/${city}`);
+    /*const dataFromApi = await $weatherApi.get(`/${city}`);
 
     if (dataFromApi.data) {
-    }
+      const cityFromDb = await db.addCity(city);
+      return res.json(cityFromDb);
+    }*/
 
-    return res.json(ApiError.badRequest(`Wrong city name: ${city}`));
+    return res.json(ApiError.badRequest(`City not found: ${city}`));
   }
 
   async getAll(req: Request, res: Response, next: NextFunction) {

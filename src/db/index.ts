@@ -29,7 +29,7 @@ class Database {
 
   async getCityByName(cityName: string) {
     const data = await this.execute<City>(
-      `select ID, NAME from CITY where NAME = :cityName`,
+      `select ID "id", NAME "name" from CITY where NAME = :cityName`,
       [cityName],
       {
         outFormat: oracledb.OUT_FORMAT_OBJECT,
@@ -41,9 +41,13 @@ class Database {
   }
 
   async getAllCities() {
-    const data = await this.execute<City>(`select ID, NAME from CITY`, [], {
-      outFormat: oracledb.OUT_FORMAT_OBJECT,
-    });
+    const data = await this.execute<City>(
+      `select ID "id", NAME "name" from CITY`,
+      [],
+      {
+        outFormat: oracledb.OUT_FORMAT_OBJECT,
+      }
+    );
     return data?.rows || null;
   }
 
@@ -53,7 +57,7 @@ class Database {
       {
         cityName: name,
         rid: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT },
-        rname: { type: oracledb.DB_TYPE_VARCHAR, dir: oracledb.BIND_OUT },
+        name: { type: oracledb.DB_TYPE_VARCHAR, dir: oracledb.BIND_OUT },
       },
       {
         autoCommit: true,

@@ -11,4 +11,8 @@ export class ApiError extends Error {
   static badRequest(message: string) {
     return new ApiError(message, 400, []);
   }
+
+  static internal(message: string) {
+    return new ApiError(message, 500, []);
+  }
 }

@@ -1,6 +1,6 @@
 import { $weatherApi } from "./index";
 
-export const getData = async (start: Date, end: Date) => {
+export const getData = async (city: string, start: Date, end: Date) => {
   const startISO = start.toISOString().split("T")[0];
   const endISO = end.toISOString().split("T")[0];
 
