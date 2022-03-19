@@ -4,18 +4,18 @@ import { ApiError } from "../ApiError/ApiError";
 import { RequestWithCity } from "../interfaces/RequestWithCity";
 
 export const cityCheckMiddleware = async (
-  req: RequestWithCity,
+  req: Request,
   res: Response,
   next: NextFunction
 ) => {
   const { city } = req.params;
 
-  const cityData = await db.getCityByName(city);
+  const cityData = await db.cityGetByName(city);
 
   if (!cityData) {
     return next(ApiError.badRequest(`Wrong city name: ${city}`));
   }
 
   req.city = cityData;
-  next();
+  return next();
 };

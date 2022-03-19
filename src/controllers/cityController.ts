@@ -6,7 +6,7 @@ import { $weatherApi } from "../thirdPartyApi";
 class CityController {
   async getOne(req: Request, res: Response, next: NextFunction) {
     const { city } = req.params;
-    const resFromDB = await db.getCityByName(city);
+    const resFromDB = await db.cityGetByName(city);
 
     if (resFromDB) {
       return res.json(resFromDB);
@@ -23,7 +23,7 @@ class CityController {
   }
 
   async getAll(req: Request, res: Response, next: NextFunction) {
-    const cities = await db.getAllCities();
+    const cities = await db.cityGetAll();
     return res.json(cities);
   }
 
@@ -31,7 +31,7 @@ class CityController {
     try {
       const { name } = req.body;
 
-      const data = await db.addCity(name);
+      const data = await db.cityAddOne(name);
       return res.json(data);
     } catch (e) {
       console.log("error");
