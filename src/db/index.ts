@@ -108,12 +108,14 @@ class Database {
   }
 
   async weatherAddMany(weatherData: dayWeatherInfo[]) {
-    console.log(weatherData);
     const data = await this.executeMany<dayWeatherInfo>(
       `
-            insert into WEATHER (CITY_ID, CREATED_AT, WIND_SPEED, WIND_DIRECTION, WIND_GUST)
-            values (:city_id, :created_at, :wind_speed, :wind_direction, :wind_gust)
-            `,
+      insert
+      when not exists (select 1 from WEATHER where CITY_ID = :city_id AND CREATED_AT = :created_at)
+      then
+      into WEATHER (CITY_ID, CREATED_AT, WIND_SPEED, WIND_DIRECTION, WIND_GUST)
+      select :city_id, :created_at, :wind_speed, :wind_direction, :wind_gust from DUAL
+      `,
       weatherData,
       {
         autoCommit: true,

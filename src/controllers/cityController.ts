@@ -34,7 +34,6 @@ class CityController {
       const data = await db.cityAddOne(name);
       return res.json(data);
     } catch (e) {
-      console.log("error");
       next(e);
     }
   }

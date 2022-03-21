@@ -16,7 +16,7 @@ app.use(
 );
 app.use(express.json());
 app.use("/api", router);
-app.use("/", (req, res) => res.status(404).send("<h1>Page not found</h1>"));
+app.use("/*", (req, res) => res.status(404).send("<h1>Page not found</h1>"));
 app.use(errorMiddleware);
 
 const start = async () => {
