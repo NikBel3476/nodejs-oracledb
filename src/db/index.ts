@@ -2,10 +2,9 @@ import oracledb, {
   BindParameters,
   ExecuteManyOptions,
   ExecuteOptions,
-  Result,
 } from "oracledb";
 import { dbconfig } from "./dbconfig";
-import { City, dayWeatherInfo } from "../@types/dbtypes";
+import { City, CityWeatherInfo } from "../@types/dbmodels";
 
 class Database {
   async initialize() {
@@ -107,31 +106,56 @@ class Database {
     return null;
   }
 
-  async weatherAddMany(weatherData: dayWeatherInfo[]) {
-    const data = await this.executeMany<dayWeatherInfo>(
+  async weatherAddMany(weatherData: CityWeatherInfo[]) {
+    const data = await this.executeMany(
       `
       insert
-      when not exists (select 1 from WEATHER where CITY_ID = :city_id AND CREATED_AT = :created_at)
+      when not exists (select 1 from WEATHER where CITY_ID = :cityId AND DATETIME = :datetime)
       then
-      into WEATHER (CITY_ID, CREATED_AT, WIND_SPEED, WIND_DIRECTION, WIND_GUST)
-      select :city_id, :created_at, :wind_speed, :wind_direction, :wind_gust from DUAL
+      into WEATHER (CITY_ID, DATETIME, WIND_SPEED, WIND_DIRECTION, WIND_GUST)
+      select :cityId, :datetime, :windSpeed, :windDirection, :windGust from DUAL
       `,
       weatherData,
       {
         autoCommit: true,
         bindDefs: {
-          city_id: { type: oracledb.NUMBER },
-          created_at: { type: oracledb.DATE },
-          wind_speed: { type: oracledb.NUMBER },
-          wind_direction: { type: oracledb.NUMBER },
-          wind_gust: { type: oracledb.NUMBER },
+          cityId: { type: oracledb.NUMBER },
+          datetime: { type: oracledb.DATE },
+          windSpeed: { type: oracledb.NUMBER },
+          windDirection: { type: oracledb.NUMBER },
+          windGust: { type: oracledb.NUMBER },
         },
       }
     );
-    if (data?.outBinds) {
-      console.log(data.outBinds);
-    }
+    console.log(data);
     return null;
+  }
+
+  async getNotExistingDates(
+    cityId: number,
+    startDateISO: string,
+    endDateISO: string
+  ) {
+    const data = await this.execute<any>(
+      ` 
+      select to_date(:start_date) + ROWNUM - 1 dt
+      from DUAL
+      CONNECT BY to_date(:end_date, 'yyyy-mm-dd') - to_date(:start_date, 'yyyy-mm-dd') >= ROWNUM - 1
+      minus
+      select DATETIME
+      from WEATHER
+      where CITY_ID = :city_id
+      `,
+      {
+        start_date: startDateISO,
+        end_date: endDateISO,
+        city_id: cityId,
+      },
+      {
+        outFormat: oracledb.OUT_FORMAT_OBJECT,
+      }
+    );
+    return data?.rows || null;
   }
 }
 

@@ -1,4 +1,4 @@
-import { City } from "../dbtypes";
+import { City } from "../dbmodels";
 
 declare global {
   namespace Express {

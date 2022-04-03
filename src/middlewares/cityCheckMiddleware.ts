@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { db } from "../db";
 import { ApiError } from "../ApiError/ApiError";
-import { RequestWithCity } from "../interfaces/RequestWithCity";
 
 export const cityCheckMiddleware = async (
   req: Request,
