@@ -136,20 +136,23 @@ class Database {
     startDateISO: string,
     endDateISO: string
   ) {
-    const data = await this.execute<any>(
+    const data = await this.execute<Date[]>(
       ` 
-      select to_date(:start_date) + ROWNUM - 1 dt
-      from DUAL
-      CONNECT BY to_date(:end_date, 'yyyy-mm-dd') - to_date(:start_date, 'yyyy-mm-dd') >= ROWNUM - 1
-      minus
+      select to_date(:start_date, 'yyyy-mm-dd') + (ROWNUM - 1 - :tz_offset) / 24 datetime
+      from
+        DUAL,
+        CITY
+      CONNECT BY (to_date(:end_date, 'yyyy-mm-dd') - to_date(:start_date, 'yyyy-mm-dd')) * 24 > ROWNUM - 1
+      /* minus
       select DATETIME
       from WEATHER
-      where CITY_ID = :city_id
+      where CITY_ID = :city_id */
       `,
       {
         start_date: startDateISO,
         end_date: endDateISO,
-        city_id: cityId,
+        // city_id: cityId,
+        tz_offset: 4,
       },
       {
         outFormat: oracledb.OUT_FORMAT_OBJECT,

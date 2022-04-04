@@ -14,9 +14,13 @@ class WeatherController {
         `/timeline/${req.city.name}/${startDate}/${endDate}`
       );
       if (apiRes.data) {
-        /*const notExistingDates = await db.getNotExistingDates(req.city.id, startDate, endDate);
-        console.log(notExistingDates);*/
-        const weatherInfo: CityWeatherInfo[] = [];
+        const notExistingDates = await db.getNotExistingDates(
+          req.city.id,
+          startDate,
+          endDate
+        );
+        console.log(notExistingDates);
+        /*const weatherInfo: CityWeatherInfo[] = [];
         apiRes.data.days.forEach((day) =>
           day.hours.forEach((hour) => {
             const date = new Date(`${day.datetime} ${hour.datetime}`);
@@ -33,9 +37,8 @@ class WeatherController {
             });
           })
         );
-        console.log(weatherInfo);
         await db.weatherAddMany(weatherInfo);
-        return res.json(apiRes.data);
+        return res.json(apiRes.data);*/
       }
     } catch (e) {
       return next(ApiError.internal("Error on third party API request"));
