@@ -20,8 +20,7 @@ class Database {
 
     try {
       connection = await oracledb.getConnection(dbconfig.connection);
-      const data = await connection.execute<T>(sql, bindParams, options);
-      return data;
+      return await connection.execute<T>(sql, bindParams, options);
     } catch (e) {
       console.error(e);
     } finally {
@@ -44,8 +43,7 @@ class Database {
 
     try {
       connection = await oracledb.getConnection(dbconfig.connection);
-      const data = await connection.executeMany<T[]>(sql, binds, options);
-      return data;
+      return await connection.executeMany<T[]>(sql, binds, options);
     } catch (e) {
       console.error(e);
     } finally {
@@ -61,7 +59,7 @@ class Database {
 
   async cityGetByName(cityName: string) {
     const data = await this.execute<City>(
-      `select ID "id", NAME "name" from CITY where NAME = :cityName`,
+      `select ID "id", NAME "name", TZ_OFFSET "tzOffset" from CITY where NAME = :cityName`,
       [cityName],
       {
         outFormat: oracledb.OUT_FORMAT_OBJECT,
@@ -98,8 +96,7 @@ class Database {
     );
     if (data?.outBinds) {
       const city: City = {
-        id: data?.outBinds.id,
-        name: data?.outBinds.name,
+        ...data?.outBinds,
       };
       return city;
     }
@@ -136,23 +133,37 @@ class Database {
     startDateISO: string,
     endDateISO: string
   ) {
-    const data = await this.execute<Date[]>(
-      ` 
-      select to_date(:start_date, 'yyyy-mm-dd') + (ROWNUM - 1 - :tz_offset) / 24 datetime
+    const data = await this.execute<{ MAX_DATETIME: Date; MIN_DATETIME: Date }>(
+      `
+      with
+        city_tz_offset as (select tz_offset from city where id = :cityId)
+      select
+        max(datetime) max_datetime,
+        min(datetime) min_datetime
       from
-        DUAL,
-        CITY
-      CONNECT BY (to_date(:end_date, 'yyyy-mm-dd') - to_date(:start_date, 'yyyy-mm-dd')) * 24 > ROWNUM - 1
-      /* minus
-      select DATETIME
-      from WEATHER
-      where CITY_ID = :city_id */
+        city_tz_offset,
+        (select
+          to_date(:startDatetime, 'yyyy-mm-dd"T"HH24:MI:SS') + (ROWNUM - 1) / 24 datetime
+        from
+          city,
+          city_tz_offset
+        CONNECT BY
+          (to_date(:endDatetime, 'yyyy-mm-dd"T"HH24:MI:SS') - to_date(:startDatetime, 'yyyy-mm-dd"T"HH24:MI:SS')) * 24 - 1 > ROWNUM
+        minus
+        select
+          datetime + tz_offset / 24
+        from
+          weather,
+          city_tz_offset
+        where
+          city_id = :cityId and
+          datetime between to_date(:startDatetime, 'yyyy-mm-dd"T"HH24:MI:SS') - tz_offset / 24 and
+          to_date(:endDatetime, 'yyyy-mm-dd"T"HH24:MI:SS') - tz_offset / 24)
       `,
       {
-        start_date: startDateISO,
-        end_date: endDateISO,
-        // city_id: cityId,
-        tz_offset: 4,
+        cityId,
+        startDatetime: startDateISO,
+        endDatetime: endDateISO,
       },
       {
         outFormat: oracledb.OUT_FORMAT_OBJECT,

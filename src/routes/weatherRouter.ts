@@ -5,7 +5,7 @@ import { cityCheckMiddleware } from "../middlewares/cityCheckMiddleware";
 const router = Router();
 
 router.get(
-  "/timeline/:city/:startDate/:endDate",
+  "/timeline/:city/:startDatetime/:endDatetime",
   cityCheckMiddleware,
   weatherController.getWindStats
 );
