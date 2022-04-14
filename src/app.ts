@@ -27,6 +27,7 @@ const start = async () => {
       console.log(`Server started at http://localhost:${PORT}`);
     });
   } catch (e) {
+    await db.closePool();
     console.error(e);
     process.exit(1);
   }

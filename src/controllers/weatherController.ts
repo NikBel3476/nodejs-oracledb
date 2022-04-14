@@ -9,14 +9,14 @@ import { CityWeatherAPI } from "../@types/weatherAPI";
 class WeatherController {
   async getWindStats(req: Request, res: Response, next: NextFunction) {
     const { startDatetime, endDatetime } = req.params;
-    const startDate = moment(startDatetime).format("YYYY-MM-DDTHH:mm:ss");
-    const endDate = moment(endDatetime).format("YYYY-MM-DDTHH:mm:ss");
+    const startDate = moment(startDatetime);
+    const endDate = moment(endDatetime);
 
     try {
       const notExistingDates = await db.getNotExistingDates(
         req.city.id,
-        startDate,
-        endDate
+        startDate.format("YYYY-MM-DDTHH:mm:ss"),
+        endDate.format("YYYY-MM-DDTHH:mm:ss")
       );
 
       if (
@@ -39,9 +39,7 @@ class WeatherController {
             day.hours.forEach((hour) => {
               weatherInfo.push({
                 cityId: req.city.id,
-                datetime: moment(`${day.datetime} ${hour.datetime}`)
-                  .subtract(req.city.tzOffset, "hours")
-                  .toDate(),
+                datetime: moment(`${day.datetime} ${hour.datetime}`).toDate(),
                 windSpeed: hour.windspeed,
                 windDirection: hour.winddir,
                 windGust: hour.windgust,
@@ -50,8 +48,13 @@ class WeatherController {
           );
           await db.weatherAddMany(weatherInfo);
         }
-        return res.json(apiRes.data);
       }
+      const weatherData = await db.weatherGetMany(
+        req.city.id,
+        startDate.toDate(),
+        endDate.toDate()
+      );
+      return res.json(weatherData);
     } catch (e) {
       return next(ApiError.internal("Error on third party API request"));
     }

@@ -11,6 +11,10 @@ class Database {
     await oracledb.createPool(dbconfig.pool);
   }
 
+  async closePool() {
+    await oracledb.getPool().close(5);
+  }
+
   private async execute<T>(
     sql: string,
     bindParams: BindParameters,
@@ -19,14 +23,14 @@ class Database {
     let connection;
 
     try {
-      connection = await oracledb.getConnection(dbconfig.connection);
+      connection = await oracledb.getConnection();
       return await connection.execute<T>(sql, bindParams, options);
     } catch (e) {
       console.error(e);
     } finally {
       if (connection) {
         try {
-          connection.close();
+          await connection.close();
         } catch (e) {
           console.error(e);
         }
@@ -42,14 +46,14 @@ class Database {
     let connection;
 
     try {
-      connection = await oracledb.getConnection(dbconfig.connection);
+      connection = await oracledb.getConnection();
       return await connection.executeMany<T[]>(sql, binds, options);
     } catch (e) {
       console.error(e);
     } finally {
       if (connection) {
         try {
-          connection.close();
+          await connection.close();
         } catch (e) {
           console.error(e);
         }
@@ -59,7 +63,7 @@ class Database {
 
   async cityGetByName(cityName: string) {
     const data = await this.execute<City>(
-      `select ID "id", NAME "name", TZ_OFFSET "tzOffset" from CITY where NAME = :cityName`,
+      `select ID "id", NAME "name" from CITY where NAME = :cityName`,
       [cityName],
       {
         outFormat: oracledb.OUT_FORMAT_OBJECT,
@@ -86,7 +90,7 @@ class Database {
       `insert into CITY (NAME) values (:cityName) returning ID, NAME into :id, :name`,
       {
         cityName: name,
-        rid: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT },
+        id: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT },
         name: { type: oracledb.DB_TYPE_VARCHAR, dir: oracledb.BIND_OUT },
       },
       {
@@ -103,14 +107,45 @@ class Database {
     return null;
   }
 
-  async weatherAddMany(weatherData: CityWeatherInfo[]) {
-    const data = await this.executeMany(
+  async weatherGetMany(cityId: number, startDatetime: Date, endDatetime: Date) {
+    const weatherData = await this.execute<CityWeatherInfo>(
       `
-      insert
-      when not exists (select 1 from WEATHER where CITY_ID = :cityId AND DATETIME = :datetime)
-      then
-      into WEATHER (CITY_ID, DATETIME, WIND_SPEED, WIND_DIRECTION, WIND_GUST)
-      select :cityId, :datetime, :windSpeed, :windDirection, :windGust from DUAL
+      select
+        CITY_ID,
+        DATETIME,
+        WIND_SPEED,
+        WIND_DIRECTION,
+        WIND_GUST
+      from
+        WEATHER
+      join
+        CITY on WEATHER.CITY_ID = CITY.ID
+      where
+        CITY_ID = :cityId and DATETIME between :startDatetime and :endDatetime
+      `,
+      {
+        cityId,
+        startDatetime,
+        endDatetime,
+      },
+      {
+        outFormat: oracledb.OUT_FORMAT_OBJECT,
+      }
+    );
+
+    return weatherData?.rows || null;
+  }
+
+  async weatherAddMany(weatherData: CityWeatherInfo[]) {
+    return await this.executeMany(
+      `
+      merge into
+        WEATHER
+      using DUAL
+        on (DATETIME = :datetime)
+        when not matched then
+          insert (DATETIME, WIND_SPEED, WIND_DIRECTION, WIND_GUST, CITY_ID)
+          values (:datetime, :windSpeed, :windDirection, :windGust, :cityId)
       `,
       weatherData,
       {
@@ -124,8 +159,6 @@ class Database {
         },
       }
     );
-    console.log(data);
-    return null;
   }
 
   async getNotExistingDates(
@@ -135,30 +168,25 @@ class Database {
   ) {
     const data = await this.execute<{ MAX_DATETIME: Date; MIN_DATETIME: Date }>(
       `
-      with
-        city_tz_offset as (select tz_offset from city where id = :cityId)
       select
         max(datetime) max_datetime,
         min(datetime) min_datetime
       from
-        city_tz_offset,
         (select
           to_date(:startDatetime, 'yyyy-mm-dd"T"HH24:MI:SS') + (ROWNUM - 1) / 24 datetime
         from
-          city,
-          city_tz_offset
-        CONNECT BY
+          city
+        connect by
           (to_date(:endDatetime, 'yyyy-mm-dd"T"HH24:MI:SS') - to_date(:startDatetime, 'yyyy-mm-dd"T"HH24:MI:SS')) * 24 - 1 > ROWNUM
         minus
         select
-          datetime + tz_offset / 24
+          datetime
         from
-          weather,
-          city_tz_offset
+          weather
         where
           city_id = :cityId and
-          datetime between to_date(:startDatetime, 'yyyy-mm-dd"T"HH24:MI:SS') - tz_offset / 24 and
-          to_date(:endDatetime, 'yyyy-mm-dd"T"HH24:MI:SS') - tz_offset / 24)
+          datetime between to_date(:startDatetime, 'yyyy-mm-dd"T"HH24:MI:SS') and
+          to_date(:endDatetime, 'yyyy-mm-dd"T"HH24:MI:SS'))
       `,
       {
         cityId,
