@@ -49,12 +49,12 @@ class WeatherController {
           await db.weatherAddMany(weatherInfo);
         }
       }
-      const weatherData = await db.weatherGetMany(
+      const windRoseStats = await db.weatherGetWindRoseStats(
         req.city.id,
-        startDate.toDate(),
-        endDate.toDate()
+        startDate.format("YYYY-MM-DDTHH:mm:ss"),
+        endDate.format("YYYY-MM-DDTHH:mm:ss")
       );
-      return res.json(weatherData);
+      return res.json(windRoseStats);
     } catch (e) {
       return next(ApiError.internal("Error on third party API request"));
     }

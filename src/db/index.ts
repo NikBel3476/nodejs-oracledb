@@ -5,6 +5,7 @@ import oracledb, {
 } from "oracledb";
 import { dbconfig } from "./dbconfig";
 import { City, CityWeatherInfo } from "../@types/dbmodels";
+import { WindRoseDirectionStat } from "../@types/WindRose";
 
 class Database {
   async initialize() {
@@ -107,15 +108,154 @@ class Database {
     return null;
   }
 
+  async weatherGetWindRoseStats(
+    cityId: number,
+    startDatetime: string,
+    endDatetime: string
+  ) {
+    const weatherData = await this.execute<WindRoseDirectionStat>(
+      `
+      select
+        round(avg(WIND_SPEED), 3) "windSpeed",
+        round(avg(WIND_GUST), 3) "windGust",
+        count(*) "hours",
+        'E' "cardinalDirection"
+      from
+        WEATHER
+      where
+        CITY_ID = :cityId and
+        datetime between to_date(:startDatetime, 'YYYY-MM-DD"T"HH24:MI:SS') and to_date(:endDatetime, 'YYYY-MM-DD"T"HH24:MI:SS') and
+        WIND_DIRECTION >= 337.5 and
+        WIND_DIRECTION < 22.5
+      group by
+        CITY_ID
+      union
+      select
+        round(avg(WIND_SPEED), 3) "windSpeed",
+        round(avg(WIND_GUST), 3) "windGust",
+        count(*) "hours",
+        'NE' "cardinalDirection"
+      from
+        WEATHER
+      where
+        CITY_ID = :cityId and
+        datetime between to_date(:startDatetime, 'YYYY-MM-DD"T"HH24:MI:SS') and to_date(:endDatetime, 'YYYY-MM-DD"T"HH24:MI:SS') and
+        WIND_DIRECTION >= 22.5 and
+        WIND_DIRECTION < 67.5
+      group by
+        CITY_ID
+      union
+      select
+        round(avg(WIND_SPEED), 3) "windSpeed",
+        round(avg(WIND_GUST), 3) "windGust",
+        count(*) "hours",
+        'N' "cardinalDirection"
+      from
+        WEATHER
+      where
+        CITY_ID = :cityId and
+        datetime between to_date(:startDatetime, 'YYYY-MM-DD"T"HH24:MI:SS') and to_date(:endDatetime, 'YYYY-MM-DD"T"HH24:MI:SS') and
+        WIND_DIRECTION >= 67.5 and
+        WIND_DIRECTION < 112.5
+      group by
+        CITY_ID
+      union
+      select
+        round(avg(WIND_SPEED), 3) "windSpeed",
+        round(avg(WIND_GUST), 3) "windGust",
+        count(*) "hours",
+        'NW' "cardinalDirection"
+      from
+        WEATHER
+      where
+        CITY_ID = :cityId and
+        datetime between to_date(:startDatetime, 'YYYY-MM-DD"T"HH24:MI:SS') and to_date(:endDatetime, 'YYYY-MM-DD"T"HH24:MI:SS') and
+        WIND_DIRECTION >= 112.5 and
+        WIND_DIRECTION < 157.5
+      group by
+        CITY_ID
+      union
+      select
+        round(avg(WIND_SPEED), 3) "windSpeed",
+        round(avg(WIND_GUST), 3) "windGust",
+        count(*) "hours",
+        'W' "cardinalDirection"
+      from
+        WEATHER
+      where
+        CITY_ID = :cityId and
+        datetime between to_date(:startDatetime, 'YYYY-MM-DD"T"HH24:MI:SS') and to_date(:endDatetime, 'YYYY-MM-DD"T"HH24:MI:SS') and
+        WIND_DIRECTION >= 157.5 and
+        WIND_DIRECTION < 202.5
+      group by
+        CITY_ID
+      union
+      select
+        round(avg(WIND_SPEED), 3) "windSpeed",
+        round(avg(WIND_GUST), 3) "windGust",
+        count(*) "hours",
+        'SW' "cardinalDirection"
+      from
+        WEATHER
+      where
+        CITY_ID = :cityId and
+        datetime between to_date(:startDatetime, 'YYYY-MM-DD"T"HH24:MI:SS') and to_date(:endDatetime, 'YYYY-MM-DD"T"HH24:MI:SS') and
+        WIND_DIRECTION >= 202.5 and
+        WIND_DIRECTION < 247.5
+      group by
+        CITY_ID
+      union
+      select
+        round(avg(WIND_SPEED), 3) "windSpeed",
+        round(avg(WIND_GUST), 3) "windGust",
+        count(*) "hours",
+        'S' "cardinalDirection"
+      from
+        WEATHER
+      where
+        CITY_ID = :cityId and
+        datetime between to_date(:startDatetime, 'YYYY-MM-DD"T"HH24:MI:SS') and to_date(:endDatetime, 'YYYY-MM-DD"T"HH24:MI:SS') and
+        WIND_DIRECTION >= 247.5 and
+        WIND_DIRECTION < 292.5
+      group by
+        CITY_ID
+      union
+      select
+        round(avg(WIND_SPEED), 3) "windSpeed",
+        round(avg(WIND_GUST), 3) "windGust",
+        count(*) "hours",
+        'SE' "cardinalDirection"
+      from
+        WEATHER
+      where
+        CITY_ID = :cityId and
+        datetime between to_date(:startDatetime, 'YYYY-MM-DD"T"HH24:MI:SS') and to_date(:endDatetime, 'YYYY-MM-DD"T"HH24:MI:SS') and
+        WIND_DIRECTION >= 292.5 and
+        WIND_DIRECTION < 337.5
+      group by
+        CITY_ID
+      `,
+      {
+        cityId,
+        startDatetime,
+        endDatetime,
+      },
+      {
+        outFormat: oracledb.OUT_FORMAT_OBJECT,
+      }
+    );
+    return weatherData?.rows || null;
+  }
+
   async weatherGetMany(cityId: number, startDatetime: Date, endDatetime: Date) {
     const weatherData = await this.execute<CityWeatherInfo>(
       `
       select
-        CITY_ID,
-        DATETIME,
-        WIND_SPEED,
-        WIND_DIRECTION,
-        WIND_GUST
+        CITY_ID "cityId",
+        DATETIME "datetime",
+        WIND_SPEED "windSpeed",
+        WIND_DIRECTION "windDirection",
+        WIND_GUST "windGust"
       from
         WEATHER
       join
