@@ -54,7 +54,8 @@ class WeatherController {
         startDate.format("YYYY-MM-DDTHH:mm:ss"),
         endDate.format("YYYY-MM-DDTHH:mm:ss")
       );
-      return res.json(windRoseStats);
+      const sortedStats = windRoseStats?.sort((a, b) => a.count - b.count);
+      return res.json(sortedStats);
     } catch (e) {
       return next(ApiError.internal("Error on third party API request"));
     }
