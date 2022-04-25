@@ -117,117 +117,119 @@ class Database {
       WindRoseDirectionStats & { count: number }
     >(
       `
-      select
-        round(avg(WIND_SPEED), 3) "windSpeed",
-        round(avg(WIND_GUST), 3) "windGust",
-        count(*) "hoursAmount",
-        'Север' "cardinalDirection",
-        0 "count"
+      (select
+          round(avg(WIND_SPEED), 3) "windSpeed",
+          round(avg(WIND_GUST), 3) "windGust",
+          count(*) "hoursAmount",
+          'Север' "cardinalDirection",
+          0 "count"
       from
-        WEATHER
+          WEATHER
       where
-        CITY_ID = :cityId and
-        datetime between to_date(:startDatetime, 'YYYY-MM-DD"T"HH24:MI:SS') and to_date(:endDatetime, 'YYYY-MM-DD"T"HH24:MI:SS') and
-        WIND_DIRECTION >= 67.5 and
-        WIND_DIRECTION < 112.5
+          CITY_ID = :cityId and
+          datetime between to_date(:startDatetime, 'YYYY-MM-DD"T"HH24:MI:SS') and to_date(:endDatetime, 'YYYY-MM-DD"T"HH24:MI:SS') and
+          (WIND_DIRECTION >= 337.5 or
+          WIND_DIRECTION < 22.5)
       union
       select
-        round(avg(WIND_SPEED), 3) "windSpeed",
-        round(avg(WIND_GUST), 3) "windGust",
-        count(*) "hoursAmount",
-        'Северо-Восток' "cardinalDirection",
-        1 "count"
+          round(avg(WIND_SPEED), 3) "windSpeed",
+          round(avg(WIND_GUST), 3) "windGust",
+          count(*) "hoursAmount",
+          'Северо-Восток' "cardinalDirection",
+          1 "count"
       from
-        WEATHER
+          WEATHER
       where
-        CITY_ID = :cityId and
-        datetime between to_date(:startDatetime, 'YYYY-MM-DD"T"HH24:MI:SS') and to_date(:endDatetime, 'YYYY-MM-DD"T"HH24:MI:SS') and
-        WIND_DIRECTION >= 22.5 and
-        WIND_DIRECTION < 67.5
+          CITY_ID = :cityId and
+          datetime between to_date(:startDatetime, 'YYYY-MM-DD"T"HH24:MI:SS') and to_date(:endDatetime, 'YYYY-MM-DD"T"HH24:MI:SS') and
+          WIND_DIRECTION >= 22.5 and
+          WIND_DIRECTION < 67.5
       union
       select
-        round(avg(WIND_SPEED), 3) "windSpeed",
-        round(avg(WIND_GUST), 3) "windGust",
-        count(*) "hoursAmount",
-        'Восток' "cardinalDirection",
-        2 "count"
+          round(avg(WIND_SPEED), 3) "windSpeed",
+          round(avg(WIND_GUST), 3) "windGust",
+          count(*) "hoursAmount",
+          'Восток' "cardinalDirection",
+          2 "count"
       from
-        WEATHER
+          WEATHER
       where
-        CITY_ID = :cityId and
-        datetime between to_date(:startDatetime, 'YYYY-MM-DD"T"HH24:MI:SS') and to_date(:endDatetime, 'YYYY-MM-DD"T"HH24:MI:SS') and
-        WIND_DIRECTION >= 337.5 and
-        WIND_DIRECTION < 22.5
+          CITY_ID = :cityId and
+          datetime between to_date(:startDatetime, 'YYYY-MM-DD"T"HH24:MI:SS') and to_date(:endDatetime, 'YYYY-MM-DD"T"HH24:MI:SS') and
+          WIND_DIRECTION >= 67.5 and
+          WIND_DIRECTION < 112.5
       union
       select
-        round(avg(WIND_SPEED), 3) "windSpeed",
-        round(avg(WIND_GUST), 3) "windGust",
-        count(*) "hoursAmount",
-        'Юго-Восток' "cardinalDirection",
-        3 "count"
+          round(avg(WIND_SPEED), 3) "windSpeed",
+          round(avg(WIND_GUST), 3) "windGust",
+          count(*) "hoursAmount",
+          'Юго-Восток' "cardinalDirection",
+          3 "count"
       from
-        WEATHER
+          WEATHER
       where
-        CITY_ID = :cityId and
-        datetime between to_date(:startDatetime, 'YYYY-MM-DD"T"HH24:MI:SS') and to_date(:endDatetime, 'YYYY-MM-DD"T"HH24:MI:SS') and
-        WIND_DIRECTION >= 292.5 and
-        WIND_DIRECTION < 337.5
+          CITY_ID = :cityId and
+          datetime between to_date(:startDatetime, 'YYYY-MM-DD"T"HH24:MI:SS') and to_date(:endDatetime, 'YYYY-MM-DD"T"HH24:MI:SS') and
+          WIND_DIRECTION >= 112.5 and
+          WIND_DIRECTION < 157.5
       union
       select
-        round(avg(WIND_SPEED), 3) "windSpeed",
-        round(avg(WIND_GUST), 3) "windGust",
-        count(*) "hoursAmount",
-        'Юг' "cardinalDirection",
-        4 "count"
+          round(avg(WIND_SPEED), 3) "windSpeed",
+          round(avg(WIND_GUST), 3) "windGust",
+          count(*) "hoursAmount",
+          'Юг' "cardinalDirection",
+          4 "count"
       from
-        WEATHER
+          WEATHER
       where
-        CITY_ID = :cityId and
-        datetime between to_date(:startDatetime, 'YYYY-MM-DD"T"HH24:MI:SS') and to_date(:endDatetime, 'YYYY-MM-DD"T"HH24:MI:SS') and
-        WIND_DIRECTION >= 247.5 and
-        WIND_DIRECTION < 292.5
+          CITY_ID = :cityId and
+          datetime between to_date(:startDatetime, 'YYYY-MM-DD"T"HH24:MI:SS') and to_date(:endDatetime, 'YYYY-MM-DD"T"HH24:MI:SS') and
+          WIND_DIRECTION >= 157.5 and
+          WIND_DIRECTION < 202.5
       union
       select
-        round(avg(WIND_SPEED), 3) "windSpeed",
-        round(avg(WIND_GUST), 3) "windGust",
-        count(*) "hoursAmount",
-        'Юго-Запад' "cardinalDirection",
-        5 "count"
+          round(avg(WIND_SPEED), 3) "windSpeed",
+          round(avg(WIND_GUST), 3) "windGust",
+          count(*) "hoursAmount",
+          'Юго-Запад' "cardinalDirection",
+          5 "count"
       from
-        WEATHER
+          WEATHER
       where
-        CITY_ID = :cityId and
-        datetime between to_date(:startDatetime, 'YYYY-MM-DD"T"HH24:MI:SS') and to_date(:endDatetime, 'YYYY-MM-DD"T"HH24:MI:SS') and
-        WIND_DIRECTION >= 202.5 and
-        WIND_DIRECTION < 247.5
+          CITY_ID = :cityId and
+          datetime between to_date(:startDatetime, 'YYYY-MM-DD"T"HH24:MI:SS') and to_date(:endDatetime, 'YYYY-MM-DD"T"HH24:MI:SS') and
+          WIND_DIRECTION >= 202.5 and
+          WIND_DIRECTION < 247.5
       union
       select
-        round(avg(WIND_SPEED), 3) "windSpeed",
-        round(avg(WIND_GUST), 3) "windGust",
-        count(*) "hoursAmount",
-        'Запад' "cardinalDirection",
-        6 "count"
+          round(avg(WIND_SPEED), 3) "windSpeed",
+          round(avg(WIND_GUST), 3) "windGust",
+          count(*) "hoursAmount",
+          'Запад' "cardinalDirection",
+          6 "count"
       from
-        WEATHER
+          WEATHER
       where
-        CITY_ID = :cityId and
-        datetime between to_date(:startDatetime, 'YYYY-MM-DD"T"HH24:MI:SS') and to_date(:endDatetime, 'YYYY-MM-DD"T"HH24:MI:SS') and
-        WIND_DIRECTION >= 157.5 and
-        WIND_DIRECTION < 202.5
+          CITY_ID = :cityId and
+          datetime between to_date(:startDatetime, 'YYYY-MM-DD"T"HH24:MI:SS') and to_date(:endDatetime, 'YYYY-MM-DD"T"HH24:MI:SS') and
+          WIND_DIRECTION >= 247.5 and
+          WIND_DIRECTION < 292.5
       union
       select
-        round(avg(WIND_SPEED), 3) "windSpeed",
-        round(avg(WIND_GUST), 3) "windGust",
-        count(*) "hoursAmount",
-        'Северо-Запад' "cardinalDirection",
-        7 "count"
+          round(avg(WIND_SPEED), 3) "windSpeed",
+          round(avg(WIND_GUST), 3) "windGust",
+          count(*) "hoursAmount",
+          'Северо-Запад' "cardinalDirection",
+          7 "count"
       from
-        WEATHER
+          WEATHER
       where
-        CITY_ID = :cityId and
-        datetime between to_date(:startDatetime, 'YYYY-MM-DD"T"HH24:MI:SS') and to_date(:endDatetime, 'YYYY-MM-DD"T"HH24:MI:SS') and
-        WIND_DIRECTION >= 112.5 and
-        WIND_DIRECTION < 157.5
+          CITY_ID = :cityId and
+          datetime between to_date(:startDatetime, 'YYYY-MM-DD"T"HH24:MI:SS') and to_date(:endDatetime, 'YYYY-MM-DD"T"HH24:MI:SS') and
+          WIND_DIRECTION >= 292.5 and
+          WIND_DIRECTION < 337.5)
+      order by
+        "count"
       `,
       {
         cityId,
