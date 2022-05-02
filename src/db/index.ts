@@ -108,6 +108,26 @@ class Database {
     return null;
   }
 
+  async cityDeleteOne(id: number) {
+    const data = await this.execute<City>(
+      `
+      delete from
+        CITY
+      where
+        ID = :id
+      `,
+      {
+        id,
+      },
+      {
+        outFormat: oracledb.OUT_FORMAT_OBJECT,
+        autoCommit: true,
+      }
+    );
+
+    return data?.rowsAffected || null;
+  }
+
   async weatherGetWindRoseStats(
     cityId: number,
     startDatetime: string,

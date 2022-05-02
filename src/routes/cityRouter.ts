@@ -6,3 +6,4 @@ export const cityRouter = Router();
 cityRouter.get("/", cityController.getAll);
 cityRouter.get("/:city", cityController.getOne);
 cityRouter.post("/", cityController.addOne);
+cityRouter.delete("/:id", cityController.deleteOne);

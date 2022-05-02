@@ -29,6 +29,17 @@ class CityController {
       next(e);
     }
   }
+
+  async deleteOne(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+
+      const data = await db.cityDeleteOne(Number(id));
+      return res.json(data);
+    } catch (e) {
+      next(e);
+    }
+  }
 }
 
 export default new CityController();
