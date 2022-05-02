@@ -88,7 +88,13 @@ class Database {
 
   async cityAddOne(name: string) {
     const data = await this.execute<City>(
-      `insert into CITY (NAME) values (:cityName) returning ID, NAME into :id, :name`,
+      `
+      insert into CITY
+        (NAME) 
+      values (:cityName)
+      returning
+        ID, NAME into :id, :name
+      `,
       {
         cityName: name,
         id: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT },
@@ -108,8 +114,28 @@ class Database {
     return null;
   }
 
+  async cityUpdateOne(city: City) {
+    const data = await this.execute(
+      `
+      update
+        CITY
+      set
+        NAME = :name
+      where
+        ID = :id
+      `,
+      city,
+      {
+        outFormat: oracledb.OUT_FORMAT_OBJECT,
+        autoCommit: true,
+      }
+    );
+
+    return data?.rowsAffected || null;
+  }
+
   async cityDeleteOne(id: number) {
-    const data = await this.execute<City>(
+    const data = await this.execute(
       `
       delete from
         CITY

@@ -30,6 +30,20 @@ class CityController {
     }
   }
 
+  async updateOne(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+
+      const data = await db.cityUpdateOne({
+        id: Number(id),
+        name: req.body.name,
+      });
+      res.json(data);
+    } catch (e) {
+      next(e);
+    }
+  }
+
   async deleteOne(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
