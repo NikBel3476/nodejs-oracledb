@@ -1,4 +1,4 @@
-### Server side of app which uses oracledb
+### Серверная часть приложения для вычисления розы ветров
 
 **[Клиентская часть](https://github.com/NikBel3476/oracledb-client)**
 
