@@ -1,23 +1,62 @@
 ### Server side of app which uses oracledb
 
-**[Client side](https://github.com/NikBel3476/oracledb-client)**
+**[Клиентская часть](https://github.com/NikBel3476/oracledb-client)**
 
-##### To run server
+##### Необходимые программы и компоненты для работы приложения:
+1. Среда для запуска javascript - Node.js  
+   [Ссылка для загрузки Node.js](https://nodejs.org)
+2. База данных Oracle  
+   [Ссылка для загрузки базы данных Oracle](https://www.oracle.com/database/technologies/oracle-database-software-downloads.html)
 
-1. Install dependencies if you are running the application at the first time
-    ```npm
-    npm install
-    ```
-2. Launch the server
+##### Порядок действий для запуска приложения:
+
+Приведенные далее команды необходимо выполнять в терминале
+```shell
+   Команды выделены данным фоном
+```
+
+### При изменении файла .env
+Если какой-либо параметр содержит символ #, то параметр необходимо обернуть парметр в двойные кавычки  
+Пример: `DB_USER="C##USER"`
+
+1. Скопировать git репозиторий (при установленном Git)
+   ```shell
+   git clone https://github.com/NikBel3476/oracledb-server.git
+   ```  
+   Папка репозитория появится в дериктории, которая является текущей в терминале.  
+   Если Git не установлен, то необходимо скачать репозиторий в виде zip архива,  
+   затем распаковать его и открыть распакованную директорию в терминале и перейти к пункту 3
+2. Перейти в папку с репозиторием
+   ```shell
+   cd oracledb-server
+   ```
+3. Установить необходимые зависимости приложения
+   ```shell
+   npm install
+   ```
+   или
+   ```shell
+   npm i
+   ```
+4. Создать необходимые таблицы в базе данных из файла db.sql
+5. В файле .env изменить параметры DB_USER, DB_PASSWORD и DB_CONNECTION, где  
+   DB_USER - имя пользователя от имени которого будет произведено подключение к базе данных  
+   DB_PASSWORD - пароль пользователя  
+   DB_CONNECTION - адрес базы данных
+6. Установить прокси (если необходимо)  
+   Изменить в файле .env параметры PROXY_ENABLE, PROXY_HOST, PROXY_PORT, где
+   PROXY_ENABLE (параметр: ENABLE/DISABLE) - включение/отключение прокси  
+   PROXY_HOST - адрес прокси сервера  
+   PROXY_PORT - порт прокси сервера
+7. Запустить приложение в обыном режиме
     ```npm
     npm run start
     ```
-    or run it in developer mode
-
+    или в режиме разработки
     ```npm
     npm run dev
     ```
 
-Server will start at `http://localhost:5000`, you can open it in browser
+Сервер будет запущен по адресу `http://localhost:5000`, вы можете открыть его в браузере
 
-**[ER diagram](https://drive.google.com/file/d/1P1h4_hd9_Tavcdgc0EOPe07LCMm7oGI1/view?usp=sharing)**
+**[ER диаграмма](https://drive.google.com/file/d/1P1h4_hd9_Tavcdgc0EOPe07LCMm7oGI1/view?usp=sharing)**
