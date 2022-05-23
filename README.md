@@ -3,10 +3,12 @@
 **[Клиентская часть](https://github.com/NikBel3476/oracledb-client)**
 
 ### Необходимые программы и компоненты для работы приложения:
-1. Среда для запуска javascript - Node.js (не ниже версии 16)
+1. Среда для запуска javascript - Node.js (не ниже версии 16)  
    [Ссылка для загрузки Node.js](https://nodejs.org)
-2. База данных Oracle (не ниже версии 12c)
+2. База данных Oracle (не ниже версии 12c)  
    [Ссылка для загрузки базы данных Oracle](https://www.oracle.com/database/technologies/oracle-database-software-downloads.html)
+3. Oracle instant-client (необходимо установить по инструкции)  
+   [Ссылка для загрузки oracle instant-client](https://www.oracle.com/database/technologies/instant-client/downloads.html)
 
 ### Порядок действий для запуска приложения:
 
