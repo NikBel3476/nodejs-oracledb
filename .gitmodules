@@ -1,4 +1,4 @@
 [submodule "oracledb-client"]
-	path = /client
+	path = client
 	url = https://github.com/NikBel3476/oracledb-client
 	branch = master
