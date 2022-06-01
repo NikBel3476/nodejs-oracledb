@@ -351,23 +351,26 @@ class Database {
 		);
 	}
 
-	async getNotExistingDates(
+	async getNotExistingDatesRange(
 		cityId: number,
-		startDateISO: string,
-		endDateISO: string
+		startDate: string,
+		endDate: string
 	) {
-		const data = await this.execute<{ MAX_DATETIME: Date; MIN_DATETIME: Date }>(
+		const data = await this.execute<{
+			minDatetime: string;
+			maxDatetime: string;
+		}>(
 			`
       select
-        max(datetime) max_datetime,
-        min(datetime) min_datetime
+				to_char(min(datetime), 'YYYY-MM-DD') "minDatetime",
+        to_char(max(datetime), 'YYYY-MM-DD') "maxDatetime"
       from
         (select
-          to_date(:startDatetime, 'yyyy-mm-dd"T"HH24:MI:SS') + (ROWNUM - 1) / 24 datetime
+          to_date(:startDate, 'YYYY-MM-DD') + (ROWNUM - 1) / 24 datetime
         from
           city
         connect by
-          (to_date(:endDatetime, 'yyyy-mm-dd"T"HH24:MI:SS') - to_date(:startDatetime, 'yyyy-mm-dd"T"HH24:MI:SS')) * 24 - 1 > ROWNUM
+          (to_date(:endDate, 'YYYY-MM-DD') - to_date(:startDate, 'YYYY-MM-DD')) * 24 - 1 > ROWNUM
         minus
         select
           datetime
@@ -375,19 +378,51 @@ class Database {
           weather
         where
           city_id = :cityId and
-          datetime between to_date(:startDatetime, 'yyyy-mm-dd"T"HH24:MI:SS') and
-          to_date(:endDatetime, 'yyyy-mm-dd"T"HH24:MI:SS'))
+          datetime between to_date(:startDate, 'YYYY-MM-DD') and
+													 to_date(:endDate, 'YYYY-MM-DD'))
       `,
 			{
 				cityId,
-				startDatetime: startDateISO,
-				endDatetime: endDateISO,
+				startDate,
+				endDate,
 			},
 			{
 				outFormat: oracledb.OUT_FORMAT_OBJECT,
 			}
 		);
-		return data?.rows || null;
+		return data?.rows?.[0] || null;
+	}
+
+	async getExistingDatesRange(
+		cityId: number,
+		startDate: string,
+		endDate: string
+	) {
+		const data = await this.execute<{
+			minDatetime: string;
+			maxDatetime: string;
+		}>(
+			`
+      select
+				to_char(min(datetime), 'YYYY-MM-DD') "minDatetime",
+        to_char(max(datetime), 'YYYY-MM-DD') "maxDatetime"
+      from
+				weather
+			where
+				city_id = :cityId and
+				datetime between to_date(:startDate, 'YYYY-MM-DD') and
+												 to_date(:endDate, 'YYYY-MM-DD')
+      `,
+			{
+				cityId,
+				startDate,
+				endDate,
+			},
+			{
+				outFormat: oracledb.OUT_FORMAT_OBJECT,
+			}
+		);
+		return data?.rows?.[0] || null;
 	}
 }
 

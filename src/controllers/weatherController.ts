@@ -13,29 +13,21 @@ class WeatherController {
 		const endDate = moment(endDatetime);
 
 		if (startDate > endDate) {
-			return next(ApiError.badRequest("Start date is greater than end date"));
+			return next(ApiError.badRequest("Начальная дата больше конечной"));
 		}
 
-		try {
-			const notExistingDates = await db.getNotExistingDates(
-				req.city.id,
-				startDate.format("YYYY-MM-DDTHH:mm:ss"),
-				endDate.format("YYYY-MM-DDTHH:mm:ss")
-			);
+		const notExistingDatesRange = await db.getNotExistingDatesRange(
+			req.city.id,
+			startDate.format("YYYY-MM-DD"),
+			endDate.hours(23).format("YYYY-MM-DD")
+		);
 
-			if (
-				notExistingDates &&
-				notExistingDates[0].MIN_DATETIME &&
-				notExistingDates[0].MAX_DATETIME
-			) {
-				const startDatetimeToFetch = moment(
-					notExistingDates[0].MIN_DATETIME
-				).format("YYYY-MM-DD");
-				const endDatetimeToFetch = moment(
-					notExistingDates[0].MAX_DATETIME
-				).format("YYYY-MM-DD");
+		const errors: string[] = [];
+
+		if (notExistingDatesRange) {
+			try {
 				const apiRes = await $weatherApi.get<CityWeatherAPI>(
-					`/timeline/${req.city.name}/${startDatetimeToFetch}/${endDatetimeToFetch}`
+					`/timeline/${req.city.name}/${notExistingDatesRange.minDatetime}/${notExistingDatesRange.maxDatetime}`
 				);
 				if (apiRes.data) {
 					const weatherInfo: CityWeatherInfo[] = [];
@@ -52,16 +44,30 @@ class WeatherController {
 					);
 					await db.weatherAddMany(weatherInfo);
 				}
+			} catch (e) {
+				errors.push("Ошибка запроса данных из стороннего API");
 			}
-			const windRoseStats = await db.weatherGetWindRoseStats(
-				req.city.id,
-				startDate.format("YYYY-MM-DDTHH:mm:ss"),
-				endDate.format("YYYY-MM-DDTHH:mm:ss")
-			);
-			return res.json(windRoseStats);
-		} catch (e) {
-			return next(ApiError.internal("Error on third party API request"));
 		}
+
+		const windRoseStats = await db.weatherGetWindRoseStats(
+			req.city.id,
+			startDate.format("YYYY-MM-DDTHH:mm:ss"),
+			endDate.hours(23).format("YYYY-MM-DDTHH:mm:ss")
+		);
+
+		const existingDatesRange = await db.getExistingDatesRange(
+			req.city.id,
+			startDate.format("YYYY-MM-DD"),
+			endDate.hours(23).format("YYYY-MM-DD")
+		);
+
+		const response = {
+			windRoseStats: windRoseStats || [],
+			startDate: existingDatesRange?.minDatetime,
+			endDate: existingDatesRange?.maxDatetime,
+			errors,
+		};
+		return res.json(response);
 	}
 }
 
