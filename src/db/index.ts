@@ -174,7 +174,7 @@ class Database {
       (select
           round(avg(WIND_SPEED), 3) "windSpeed",
           round(avg(WIND_GUST), 3) "windGust",
-          count(*) "hoursAmount",
+          count(*) / 24 "hoursAmount",
           'Север' "cardinalDirection",
           0 "count"
       from
@@ -188,7 +188,7 @@ class Database {
       select
           round(avg(WIND_SPEED), 3) "windSpeed",
           round(avg(WIND_GUST), 3) "windGust",
-          count(*) "hoursAmount",
+          count(*) / 24 "hoursAmount",
           'Северо-Восток' "cardinalDirection",
           1 "count"
       from
@@ -202,7 +202,7 @@ class Database {
       select
           round(avg(WIND_SPEED), 3) "windSpeed",
           round(avg(WIND_GUST), 3) "windGust",
-          count(*) "hoursAmount",
+          count(*) / 24 "hoursAmount",
           'Восток' "cardinalDirection",
           2 "count"
       from
@@ -216,7 +216,7 @@ class Database {
       select
           round(avg(WIND_SPEED), 3) "windSpeed",
           round(avg(WIND_GUST), 3) "windGust",
-          count(*) "hoursAmount",
+          count(*) / 24 "hoursAmount",
           'Юго-Восток' "cardinalDirection",
           3 "count"
       from
@@ -230,7 +230,7 @@ class Database {
       select
           round(avg(WIND_SPEED), 3) "windSpeed",
           round(avg(WIND_GUST), 3) "windGust",
-          count(*) "hoursAmount",
+          count(*) / 24 "hoursAmount",
           'Юг' "cardinalDirection",
           4 "count"
       from
@@ -244,7 +244,7 @@ class Database {
       select
           round(avg(WIND_SPEED), 3) "windSpeed",
           round(avg(WIND_GUST), 3) "windGust",
-          count(*) "hoursAmount",
+          count(*) / 24 "hoursAmount",
           'Юго-Запад' "cardinalDirection",
           5 "count"
       from
@@ -258,7 +258,7 @@ class Database {
       select
           round(avg(WIND_SPEED), 3) "windSpeed",
           round(avg(WIND_GUST), 3) "windGust",
-          count(*) "hoursAmount",
+          count(*) / 24 "hoursAmount",
           'Запад' "cardinalDirection",
           6 "count"
       from
@@ -272,7 +272,7 @@ class Database {
       select
           round(avg(WIND_SPEED), 3) "windSpeed",
           round(avg(WIND_GUST), 3) "windGust",
-          count(*) "hoursAmount",
+          count(*) / 24 "hoursAmount",
           'Северо-Запад' "cardinalDirection",
           7 "count"
       from
@@ -393,26 +393,22 @@ class Database {
 		return data?.rows?.[0] || null;
 	}
 
-	async getExistingDatesRange(
-		cityId: number,
-		startDate: string,
-		endDate: string
-	) {
-		const data = await this.execute<{
-			minDatetime: string;
-			maxDatetime: string;
-		}>(
+	async getExistingDates(cityId: number, startDate: string, endDate: string) {
+		const data = await this.execute<{ date: string }[]>(
 			`
-      select
-				to_char(min(datetime), 'YYYY-MM-DD') "minDatetime",
-        to_char(max(datetime), 'YYYY-MM-DD') "maxDatetime"
-      from
-				weather
-			where
-				city_id = :cityId and
-				datetime between to_date(:startDate, 'YYYY-MM-DD') and
-												 to_date(:endDate, 'YYYY-MM-DD')
-      `,
+				select
+					to_char(datetime, 'YYYY-MM-DD') "date"
+				from
+					weather
+				where
+					city_id = :cityId and
+					datetime between to_date(:startDate, 'YYYY-MM-DD') and
+													 to_date(:endDate, 'YYYY-MM-DD')
+				group by
+					to_char(datetime, 'YYYY-MM-DD')
+				order by
+					"date"
+			`,
 			{
 				cityId,
 				startDate,
@@ -422,7 +418,7 @@ class Database {
 				outFormat: oracledb.OUT_FORMAT_OBJECT,
 			}
 		);
-		return data?.rows?.[0] || null;
+		return data?.rows || null;
 	}
 }
 

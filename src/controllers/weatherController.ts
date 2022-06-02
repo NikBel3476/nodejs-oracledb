@@ -24,7 +24,10 @@ class WeatherController {
 
 		const errors: string[] = [];
 
-		if (notExistingDatesRange) {
+		if (
+			notExistingDatesRange?.minDatetime &&
+			notExistingDatesRange.maxDatetime
+		) {
 			try {
 				const apiRes = await $weatherApi.get<CityWeatherAPI>(
 					`/timeline/${req.city.name}/${notExistingDatesRange.minDatetime}/${notExistingDatesRange.maxDatetime}`
@@ -44,8 +47,11 @@ class WeatherController {
 					);
 					await db.weatherAddMany(weatherInfo);
 				}
-			} catch (e) {
-				errors.push("Ошибка запроса данных из стороннего API");
+			} catch (e: any) {
+				let apiErrorText = "Ошибка запроса данных из стороннего API";
+				if (e.response.status === 429)
+					apiErrorText += ": исчерпан лимит запросов";
+				errors.push(apiErrorText, "Найдены не все данные");
 			}
 		}
 
@@ -55,7 +61,7 @@ class WeatherController {
 			endDate.hours(23).format("YYYY-MM-DDTHH:mm:ss")
 		);
 
-		const existingDatesRange = await db.getExistingDatesRange(
+		const existingDates = await db.getExistingDates(
 			req.city.id,
 			startDate.format("YYYY-MM-DD"),
 			endDate.hours(23).format("YYYY-MM-DD")
@@ -63,9 +69,10 @@ class WeatherController {
 
 		const response = {
 			windRoseStats: windRoseStats || [],
-			startDate: existingDatesRange?.minDatetime,
-			endDate: existingDatesRange?.maxDatetime,
+			startDate: startDatetime,
+			endDate: endDatetime,
 			errors,
+			existingDates,
 		};
 		return res.json(response);
 	}
